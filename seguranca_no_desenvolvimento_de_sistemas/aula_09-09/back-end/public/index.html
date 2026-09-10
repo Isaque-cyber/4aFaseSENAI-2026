@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Comentários</title>
+</head>
+
+<body>
+
+```
+<h1>Comentários</h1>
+
+<textarea
+    id="comentario"
+    placeholder="Digite seu comentário"
+></textarea>
+
+<br><br>
+
+<button onclick="salvar()">
+    Publicar comentário
+</button>
+
+<hr>
+
+<h2>Comentários publicados</h2>
+
+<div id="lista"></div>
+
+<script>
+
+    // Envia o comentário digitado pelo usuário para o servidor.
+    async function salvar() {
+
+        const comentario =
+            document.getElementById("comentario").value;
+
+        await fetch("/comentarios", {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                comentario
+            })
+        });
+
+        document.getElementById("comentario").value = "";
+
+        carregar();
+    }
+
+
+    /*
+     * VERSÃO VULNERÁVEL:
+     *
+     * O código abaixo utilizava innerHTML para inserir os
+     * comentários diretamente dentro da página.
+     *
+     * Como o conteúdo vem do usuário, uma entrada contendo
+     * HTML ou JavaScript poderia ser interpretada pelo navegador.
+     *
+     * Isso permite um XSS armazenado, pois o conteúdo malicioso
+     * poderia ser salvo no servidor e executado quando os
+     * comentários fossem carregados.
+     *
+     * Exemplo de entrada que poderia ser interpretada:
+     * <b>Texto em negrito</b>
+     *
+     * Por isso, essa implementação foi substituída.
+     */
+
+    /*
+    async function carregar() {
+
+        const resposta =
+            await fetch("/comentarios");
+
+        const comentarios =
+            await resposta.json();
+
+        const lista =
+            document.getElementById("lista");
+
+        lista.innerHTML = "";
+
+        comentarios.forEach(comentario => {
+
+            lista.innerHTML += `
+                <p>${comentario}</p>
+            `;
+        });
+    }
+    */
+
+
+    /*
+     * VERSÃO CORRIGIDA:
+     *
+     * Em vez de utilizar innerHTML, criamos o elemento <p>
+     * usando JavaScript e colocamos o comentário através de
+     * textContent.
+     *
+     * textContent trata o conteúdo recebido como TEXTO,
+     * e não como HTML.
+     *
+     * Dessa forma, se o usuário inserir uma tag HTML ou um
+     * código JavaScript, ele será exibido na página como texto
+     * e não será interpretado pelo navegador.
+     *
+     * Exemplo:
+     * <b>Teste</b>
+     *
+     * Será exibido literalmente como "<b>Teste</b>",
+     * em vez de deixar "Teste" em negrito.
+     */
+
+    async function carregar() {
+
+        const resposta =
+            await fetch("/comentarios");
+
+        const comentarios =
+            await resposta.json();
+
+        const lista =
+            document.getElementById("lista");
+
+        lista.textContent = "";
+
+        comentarios.forEach(comentario => {
+
+            const p = document.createElement("p");
+
+            // Insere o comentário como texto, impedindo
+            // que tags HTML sejam interpretadas.
+            p.textContent = comentario;
+
+            lista.appendChild(p);
+        });
+    }
+
+    carregar();
+
+</script>
+```
+
+</body>
+
+</html>
