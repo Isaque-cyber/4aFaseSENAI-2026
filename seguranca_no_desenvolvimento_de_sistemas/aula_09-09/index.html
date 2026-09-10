@@ -26,15 +26,15 @@
         function buscar() {
             const termo = document.getElementById("busca").value;
 
-            // ANTES 
-            // O problema aqui é que o .innerHTML permite a inserção de código HTML, o que pode ser um risco de segurança
+           // ANTES
+           // O risco aqui era o uso de .innerHTML, que aceita tags HTML e abre margem para ataques de injeção de código (XSS).
 
             // document.getElementById("resultado").innerHTML =
             //     "Você pesquisou por: " + termo;
 
-            //Corrigido
+            // CORRIGIDO
 
-            // Alterei o .innerHTML para .textContent assim o conteúdo é tratado como texto e não como código HTML
+            // Substituí por .textContent para garantir que o valor seja renderizado estritamente como texto puro, neutralizando qualquer código malicioso.
 
             document.getElementById("resultado").textContent =
                 "Você pesquisou por: " + termo;
